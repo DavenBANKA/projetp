@@ -96,6 +96,39 @@ def login():
     
     return render_template('login.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        nom_complet = request.form.get('nom_complet', '').strip()
+        password = request.form.get('password', '')
+        confirm = request.form.get('confirm', '')
+
+        if not username or not nom_complet or not password:
+            flash('Tous les champs sont requis.', 'error')
+            return render_template('register.html', username=username, nom_complet=nom_complet)
+
+        if password != confirm:
+            flash('Les mots de passe ne correspondent pas.', 'error')
+            return render_template('register.html', username=username, nom_complet=nom_complet)
+
+        if User.query.filter_by(username=username).first():
+            flash('Ce nom d\'utilisateur existe déjà.', 'error')
+            return render_template('register.html', username=username, nom_complet=nom_complet)
+
+        try:
+            new_user = User(username=username, nom_complet=nom_complet, role='utilisateur')
+            new_user.set_password(password)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Compte créé avec succès. Vous pouvez vous connecter.', 'success')
+            return redirect(url_for('login'))
+        except Exception:
+            db.session.rollback()
+            flash('Erreur lors de la création du compte.', 'error')
+
+    return render_template('register.html')
+
 @app.route('/logout')
 def logout():
     session.clear()
