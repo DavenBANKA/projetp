@@ -9,8 +9,11 @@
     <style>
         .sidebar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             color: white;
+            min-height: 100vh;
+        }
+        .sidebar nav a {
+            text-decoration: none;
         }
         .sidebar .nav-link {
             color: rgba(255,255,255,0.8);
@@ -62,13 +65,66 @@
             border-bottom: 1px solid rgba(255,255,255,0.2);
             margin-bottom: 20px;
         }
+        @media (max-width: 991.98px) {
+            .sidebar {
+                min-height: unset;
+            }
+            .mobile-nav-trigger {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .main-content {
+                padding: 0;
+            }
+            .table {
+                font-size: 0.92rem;
+            }
+            .table td, .table th {
+                white-space: nowrap;
+            }
+            .table-responsive {
+                margin-bottom: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Mobile offcanvas sidebar -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title"><i class="fas fa-store me-2"></i>GbGescom</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Fermer le menu" title="Fermer le menu"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="sidebar h-100 p-3">
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-home me-2"></i> Accueil
+                    </a>
+                    <a class="nav-link" href="{{ url_for('liste_produits') }}">
+                        <i class="fas fa-box me-2"></i> Produits
+                    </a>
+                    <a class="nav-link" href="{{ url_for('facturation') }}">
+                        <i class="fas fa-receipt me-2"></i> Facturation
+                    </a>
+                    <a class="nav-link" href="{{ url_for('gestion_stock') }}">
+                        <i class="fas fa-warehouse me-2"></i> Gestion du Stock
+                    </a>
+                    {% if session.user_role == 'admin' %}
+                    <a class="nav-link" href="{{ url_for('rapports') }}">
+                        <i class="fas fa-chart-bar me-2"></i> Rapports et Stats
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-2 sidebar">
+            <div class="col-md-2 d-none d-md-block sidebar">
                 <div class="logo">
                     <i class="fas fa-store"></i> GbGescom
                 </div>
@@ -94,10 +150,13 @@
             </div>
             
             <!-- Main Content -->
-            <div class="col-md-10 main-content">
+            <div class="col-md-10 col-12 main-content">
                 <!-- Top Bar -->
-                <div class="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
-                    <div>
+                <div class="bg-white border-bottom px-3 px-md-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-primary d-md-none mobile-nav-trigger" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Ouvrir le menu" title="Ouvrir le menu">
+                            <i class="fas fa-bars" aria-hidden="true"></i><span class="visually-hidden">Menu</span>
+                        </button>
                         <h5 class="mb-0">{% block page_title %}Tableau de Bord{% endblock %}</h5>
                     </div>
                     <div class="d-flex align-items-center">
