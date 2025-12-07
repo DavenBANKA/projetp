@@ -58,6 +58,18 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# Admin role decorator
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        if session.get('user_role') != 'admin':
+            flash('Accès refusé. Privilèges administrateur requis.', 'error')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 # Routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -71,6 +83,7 @@ def login():
             session['user_id'] = user.id
             session['username'] = user.username
             session['nom_complet'] = user.nom_complet
+            session['user_role'] = user.role
             flash('Connexion réussie!', 'success')
             return redirect(url_for('index'))
         else:
@@ -247,7 +260,7 @@ def gestion_stock():
     return render_template('stock.html', produits_faible_stock=produits_faible_stock)
 
 @app.route('/rapports')
-@login_required
+@admin_required
 def rapports():
     total_produits = Produit.query.count()
     produits_rupture = Produit.query.filter(Produit.stock_affiche <= Produit.stock_minimal).count()

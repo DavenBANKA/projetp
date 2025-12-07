@@ -85,9 +85,11 @@
                     <a class="nav-link" href="{{ url_for('gestion_stock') }}">
                         <i class="fas fa-warehouse me-2"></i> Gestion du Stock
                     </a>
+                    {% if session.user_role == 'admin' %}
                     <a class="nav-link" href="{{ url_for('rapports') }}">
                         <i class="fas fa-chart-bar me-2"></i> Rapports et Stats
                     </a>
+                    {% endif %}
                 </nav>
             </div>
             
