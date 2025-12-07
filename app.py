@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -71,7 +71,7 @@ def admin_required(f):
             return redirect(url_for('login'))
         if session.get('user_role') != 'admin':
             flash('Accès refusé. Privilèges administrateur requis.', 'error')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -90,7 +90,7 @@ def login():
             session['nom_complet'] = user.nom_complet
             session['user_role'] = user.role
             flash('Connexion réussie!', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
         else:
             flash('Nom d\'utilisateur ou mot de passe incorrect', 'error')
     
@@ -101,9 +101,20 @@ def logout():
     session.clear()
     flash('Vous avez été déconnecté', 'info')
     return redirect(url_for('login'))
+
+@app.route('/images/<path:filename>')
+def serve_image(filename):
+    """Serve les images du dossier local images/"""
+    images_dir = os.path.join(BASE_DIR, 'images')
+    return send_from_directory(images_dir, filename)
+
 @app.route('/')
+def landing():
+    return render_template('landing.html')
+
+@app.route('/dashboard')
 @login_required
-def index():
+def dashboard():
     return render_template('index.html')
 
 @app.route('/produits')
