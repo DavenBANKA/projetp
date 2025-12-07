@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: projetp
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 3 --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        value: change-me-in-prod
+      - key: AUTO_INIT_DB
+        value: "1"
+    disk:
+      name: supermarche-db
+      mountPath: /opt/render/project/src/instance
+      sizeGB: 1

@@ -6,8 +6,13 @@ from functools import wraps
 import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///supermarche.db'
+
+# Chemins et configuration sensibles
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+os.makedirs(os.path.join(BASE_DIR, "instance"), exist_ok=True)
+
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-me-in-prod')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'instance', 'supermarche.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -341,6 +346,11 @@ def init_db():
     
     print("✓ Base de données initialisée - aucun produit par défaut")
 
+# Initialisation automatique de la base (utile pour Render et le dev)
+if os.environ.get("AUTO_INIT_DB", "1") == "1":
+    with app.app_context():
+        init_db()
+
 if __name__ == '__main__':
     print("🚀 Démarrage de GbGescom - Gestion de Supermarché")
     print("=" * 50)
@@ -348,9 +358,6 @@ if __name__ == '__main__':
     print("🔧 Mode: Développement")
     print("📊 Base de données: SQLite")
     print("=" * 50)
-    
-    with app.app_context():
-        init_db()
     
     print("\n🌐 Lancement du serveur web...")
     print("Appuyez sur Ctrl+C pour arrêter l'application")
